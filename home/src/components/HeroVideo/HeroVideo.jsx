@@ -12,6 +12,7 @@ const HeroVideo = () => {
         <ReactPlayer
           // url={`${process.env.PUBLIC_URL}/assets/videos/video-3.mp4`}
           url="http://localhost:9090/videos/video-3_bvxghi.mp4"
+          // url="https://res.cloudinary.com/darwtgzlk/video/upload/w_400,f_auto,q_auto/v1687841995/Ecommerce-app/video-3_bvxghi.mp4"
           playing
           playbackRate={1.5}
           muted

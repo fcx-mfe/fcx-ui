@@ -14,8 +14,18 @@ const ProductDetails = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
-    PubSub.publish("EVENTS.PRODUCTS_GET", productId);
-    PubSub.subscribe("EVENTS.PRODUCTS_GET_SUCCEEDED", (type, { product: apiProduct }) => {
+    const encryptedKey = MessageEncryptionService.getEncryptedKey();
+    const aesKey = MessageEncryptionService.decryptAESKeyWithRSA(encryptedKey);
+    const { encryptedData, iv } = MessageEncryptionService.encryptData(
+      JSON.stringify(productId),
+      aesKey
+    );
+
+    PubSub.publish("EVENTS.PRODUCTS_GET", { encryptedData, iv });
+    PubSub.subscribe("EVENTS.PRODUCTS_GET_SUCCEEDED", async (type, { encryptedData, iv }) => {
+      const decryptedData = await MessageEncryptionService.decryptData({ encryptedData, iv }, aesKey);
+      const { product: apiProduct } = JSON.parse(decryptedData);
+
       setSelectedProduct(apiProduct);
     });
 
