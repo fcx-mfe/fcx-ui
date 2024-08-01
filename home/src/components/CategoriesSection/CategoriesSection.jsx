@@ -8,10 +8,15 @@ const CategoriesSection = () => {
   const [categories, setCategories] = useState([]);
   // const dispatch = ({ type, payload}) => console.log(type, payload);
 
-  useEffect(() => {
-    window.EventBus = PubSub;
+  useEffect(async () => {
+    const encryptedKey = await MessageEncryptionService.getEncryptedAESKey();
+    const aesKey = await MessageEncryptionService.decryptAESKeyWithRSA(encryptedKey);
+
     PubSub.publish("EVENTS.CATEGORIES_GET");
-    PubSub.subscribe("EVENTS.CATEGORIES_GET_SUCCEEDED", (type, { categories }) => {
+    PubSub.subscribe("EVENTS.CATEGORIES_GET_SUCCEEDED", async (type, { encryptedData, iv }) => {
+      const decryptedData = await MessageEncryptionService.decryptData({ encryptedData, iv }, aesKey);
+      const { categories } = JSON.parse(decryptedData);
+
       setCategories(categories);
     });
   }, []);
