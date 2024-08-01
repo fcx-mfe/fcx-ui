@@ -2,6 +2,10 @@
 
 Este proyecto utiliza una arquitectura de Micro Frontends (MFEs) y está compuesto por varios módulos que deben ser gestionados de manera independiente. En este documento, encontrarás la información necesaria para ejecutar dos scripts importantes: uno para instalar las dependencias y otro para iniciar todas las aplicaciones (Micro FrontEnds).
 
+## Version de NodeJS a usar
+
+Se recomienda usar la version **NodeJS 18**
+
 ## Scripts Disponibles
 
 ### 1. Instalación de Dependencias
