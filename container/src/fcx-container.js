@@ -1,16 +1,11 @@
 import { registerApplication, start, navigateToUrl } from "single-spa";
-import SharedAPIClient, { ASD } from "@fcx/api-client";
+import SharedAPIClient, { test } from "@fcx/api-client";
 
-console.log(ASD);
-window.MessageEncryptionService = ASD();
-
-(async () => {
-  await SharedAPIClient.getInstance({
-    name: "products-service",
-    baseURL: "http://localhost:9090",
-    resources: ["PRODUCTS", "CATEGORIES"],
-  });
-})();
+SharedAPIClient.getInstance({
+  name: "products-service",
+  baseURL: "http://localhost:9090",
+  resources: ["PRODUCTS", "CATEGORIES"],
+});
 
 registerApplication({
   name: "@fcx/nav",

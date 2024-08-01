@@ -3,13 +3,13 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import ProductListing from "./components/ProductListing/ProductListing";
 import ProductDetails from "./components/ProductDetails/ProductDetails";
 
-(async () => {
-  await SharedAPIClient.getInstance({
-    name: "products-service",
-    baseURL: "http://localhost:9090",
-    resources: ["PRODUCTS", "CATEGORIES"],
-  });
-})();
+// (async () => {
+// SharedAPIClient.getInstance({
+//   name: "products-service",
+//   baseURL: "http://localhost:9090",
+//   resources: ["PRODUCTS", "CATEGORIES"],
+// });
+// })();
 
 export default function Root(props) {
   return (

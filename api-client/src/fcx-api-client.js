@@ -3,7 +3,7 @@ import PubSub, { subscribe } from "pubsub-js";
 import { setupCache } from "axios-cache-interceptor";
 import MessageEncryptionService from "./messageEncryptionService"; // Import the service
 
-// window.MessageEncryptionService = MessageEncryptionService;
+window.MessageEncryptionService = MessageEncryptionService;
 
 const axios = setupCache(Axios);
 
@@ -96,51 +96,56 @@ const REST_METHODS = [
   { id: "DELETE", funcName: "delete" },
 ];
 
-function APIEventBusLegacy({ baseURL, resources }) {
-  const apiClient = new APIClient(baseURL);
+// function APIEventBusLegacy({ baseURL, resources }) {
+//   const apiClient = new APIClient(baseURL);
 
-  const subscribe = ({ method, resource }) => {
-    const ACTION = `EVENTS.${resource}_${method.id}`;
+//   const subscribe = ({ method, resource }) => {
+//     const ACTION = `EVENTS.${resource}_${method.id}`;
 
-    PubSub.subscribe(ACTION, (type, params) => {
-      apiClient(resource.toLowerCase())
-        [method.funcName](params)
-        .then((data) => {
-          PubSub.publish(`${ACTION}_SUCCEEDED`, data);
-        })
-        .catch((error) => {
-          PubSub.publish(`${ACTION}_FAILED`, error);
-        });
-    });
-  };
+//     PubSub.subscribe(ACTION, (type, params) => {
+//       apiClient(resource.toLowerCase())
+//         [method.funcName](params)
+//         .then((data) => {
+//           PubSub.publish(`${ACTION}_SUCCEEDED`, data);
+//         })
+//         .catch((error) => {
+//           PubSub.publish(`${ACTION}_FAILED`, error);
+//         });
+//     });
+//   };
 
-  REST_METHODS.forEach((method) => {
-    resources.forEach((resource) => {
-      subscribe({ method, resource });
-    });
-  });
+//   REST_METHODS.forEach((method) => {
+//     resources.forEach((resource) => {
+//       subscribe({ method, resource });
+//     });
+//   });
 
-  return {
-    apiClient,
-    unsubscribe: () => {},
-    unsubscribeAll: () => {},
-  };
-}
+//   return {
+//     apiClient,
+//     unsubscribe: () => {},
+//     unsubscribeAll: () => {},
+//   };
+// }
 
 async function APIEventBus({ baseURL, resources }) {
   const apiClient = new APIClient(baseURL);
-  const aesKey = await MessageEncryptionService.generateAESKey();
+  const aesKey = await MessageEncryptionService.getEncryptedAESKey();
   await MessageEncryptionService.encryptAESKeyWithRSA(aesKey);
 
   const subscribe = ({ method, resource }) => {
     const ACTION = `EVENTS.${resource}_${method.id}`;
 
-    PubSub.subscribe(ACTION, async (type, { encryptedData, iv }) => {
-      const decryptedData = await MessageEncryptionService.decryptData(
-        { encryptedData, iv },
-        aesKey
-      );
-      const params = JSON.parse(decryptedData);
+    PubSub.subscribe(ACTION, async (type, data) => {
+      let params;
+
+      if (data) {
+        const { encryptedData, iv } = data;
+        const decryptedData = await MessageEncryptionService.decryptData(
+          { encryptedData, iv },
+          aesKey
+        );
+        params = JSON.parse(decryptedData);
+      }
 
       apiClient(resource.toLowerCase())
         [method.funcName](params)
@@ -168,7 +173,6 @@ async function APIEventBus({ baseURL, resources }) {
     apiClient,
     unsubscribe: () => {},
     unsubscribeAll: () => {},
-    getEncryptedKey: () => encryptedAESKey, // Expose encrypted AES key for sharing
   };
 }
 
@@ -180,7 +184,7 @@ function SharedAPIClient() {
       const instance = instances[name];
 
       if (!instance) {
-        instances[name] = await new APIEventBusLegacy({ baseURL, resources });
+        instances[name] = await new APIEventBus({ baseURL, resources });
       }
 
       return instance;
@@ -192,5 +196,4 @@ function SharedAPIClient() {
   };
 }
 
-export { MessageEncryptionService };
-// export default new SharedAPIClient();
+export default new SharedAPIClient();

@@ -13,10 +13,10 @@ const ProductDetails = () => {
 
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  useEffect(() => {
-    const encryptedKey = MessageEncryptionService.getEncryptedKey();
-    const aesKey = MessageEncryptionService.decryptAESKeyWithRSA(encryptedKey);
-    const { encryptedData, iv } = MessageEncryptionService.encryptData(
+  useEffect(async () => {
+    const encryptedKey = await MessageEncryptionService.getEncryptedAESKey();
+    const aesKey = await MessageEncryptionService.decryptAESKeyWithRSA(encryptedKey);
+    const { encryptedData, iv } = await MessageEncryptionService.encryptData(
       JSON.stringify(productId),
       aesKey
     );
