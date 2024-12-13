@@ -45,14 +45,20 @@ const ProductListingSection = () => {
   } = {};
 
   
-  useEffect(() => {
+  useEffect(async () => {
+    const encryptedKey = await MessageEncryptionService.getEncryptedAESKey();
+    const aesKey = await MessageEncryptionService.decryptAESKeyWithRSA(encryptedKey);
+
     PubSub.publish("EVENTS.PRODUCTS_GET");
-    PubSub.subscribe("EVENTS.PRODUCTS_GET_SUCCEEDED", (type, { products: apiProducts }) => {
+    PubSub.subscribe("EVENTS.PRODUCTS_GET_SUCCEEDED", async (type, { encryptedData, iv }) => {
+      const decryptedData = await MessageEncryptionService.decryptData({ encryptedData, iv }, aesKey);
+      const { products: apiProducts } = JSON.parse(decryptedData);
       const searchedProducts = getSearchedProducts(apiProducts, inputSearch);
       const ratedProducts = getRatedProducts(searchedProducts, rating);
       const categoryProducts = getCategoryWiseProducts(ratedProducts, categories);
       const pricedProducts = getPricedProducts(categoryProducts, price);
       const sortedProducts = getSortedProducts(pricedProducts, sort);
+
       setProducts(sortedProducts);
     });
 

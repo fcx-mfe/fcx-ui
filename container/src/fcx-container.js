@@ -1,38 +1,38 @@
 import { registerApplication, start, navigateToUrl } from "single-spa";
-import SharedAPIClient from '@fcx/api-client';
+import SharedAPIClient, { test } from "@fcx/api-client";
 
 SharedAPIClient.getInstance({
-  name: 'products-service', 
-  baseURL: 'http://localhost:9090',
-  resources: ['PRODUCTS', 'CATEGORIES'],
+  name: "products-service",
+  baseURL: "http://localhost:9090",
+  resources: ["PRODUCTS", "CATEGORIES"],
 });
 
 registerApplication({
   name: "@fcx/nav",
   app: () => System.import("@fcx/nav"),
-  activeWhen: ["/"]
+  activeWhen: ["/"],
 });
 
 registerApplication({
   name: "@fcx/home",
   app: () => System.import("@fcx/home"),
-  activeWhen: ["/home"]
-});  
+  activeWhen: ["/home"],
+});
 
 registerApplication({
   name: "@fcx/products",
   app: () => System.import("@fcx/products"),
-  activeWhen: ["/product-listing", "/product-details"]
-});  
+  activeWhen: ["/product-listing", "/product-details"],
+});
 
 registerApplication({
   name: "@fcx/auth",
   app: () => System.import("@fcx/auth"),
-  activeWhen: ["/login"]
-});  
+  activeWhen: ["/login"],
+});
 
 start({
   urlRerouteOnly: true,
 });
 
-navigateToUrl('/home');
+navigateToUrl("/home");

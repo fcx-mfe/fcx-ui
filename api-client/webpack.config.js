@@ -10,6 +10,19 @@ module.exports = (webpackConfigEnv, argv) => {
   });
 
   return merge(defaultConfig, {
-    // modify the webpack config however you'd like to by adding to this object
+    resolve: {
+      fallback: {
+        crypto: require.resolve("crypto-browserify"),
+        stream: require.resolve("stream-browserify"),
+        vm: require.resolve("vm-browserify"),
+        // Add other fallbacks if needed
+      },
+    },
+    // Optionally, you may also need to include the following:
+    // plugins: [
+    //   new webpack.ProvidePlugin({
+    //     process: "process/browser",
+    //   }),
+    // ],
   });
 };
